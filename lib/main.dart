@@ -3,9 +3,16 @@ import 'modul_01/profile_screen.dart';
 import 'modul_02/academic_dashboard_screen.dart';
 import 'modul_03/modul_03_app.dart';
 import 'modul_04/modul_04_app.dart';
+import 'modul_11/modul_11_app.dart';
+import 'pengayaan/modul_06/modul_06_pengayaan_app.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const PoliwangiStarterApp());
+  runApp(
+    const ProviderScope(
+      child: PoliwangiStarterApp(),
+    ),
+  );
 }
 
 class PoliwangiStarterApp extends StatelessWidget {
@@ -13,41 +20,28 @@ class PoliwangiStarterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MaterialApp(
-  debugShowCheckedModeBanner: false,
-  // Tema terang (default)
-  theme: ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF0284C7),
-      brightness: Brightness.light,
-    ),
-    cardTheme: CardThemeData(
-    elevation: 2,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-),
-  ),
-  // Tema gelap
-  darkTheme: ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF0284C7),
-      brightness: Brightness.dark,
-    ),
-  ),
-  // Mengikuti preferensi tema di pengaturan OS (Android/iOS/PC)
-  themeMode: ThemeMode.system,
-);   
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Poliwangi Mobile Codelabs 2026',
       theme: ThemeData(
+        useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF0284C7),
           brightness: Brightness.light,
         ),
-        useMaterial3: true,
+        cardTheme: CardThemeData(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
       ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF0284C7),
+          brightness: Brightness.dark,
+        ),
+      ),
+      themeMode: ThemeMode.system,
       home: const ModuleLauncherScreen(),
     );
   }
@@ -56,11 +50,8 @@ class PoliwangiStarterApp extends StatelessWidget {
 class ModuleLauncherScreen extends StatefulWidget {
   const ModuleLauncherScreen({super.key});
 
-  // Konfigurasi batas modul aktif perkuliahan (diatur oleh Dosen Pengampu)
-  // Mahasiswa hanya dapat mengakses modul dengan nomor <= activeModuleUntil
-  static const int activeModuleUntil = 2; // Saat ini: Minggu ke-2 (Modul 1 & 2 terbuka)
+  static const int activeModuleUntil = 11;
 
-  // Token akses kelas untuk membuka modul saat praktikum di lab
   static const Map<int, String> modulePasscodes = {
     3: 'TRPL-M03',
     4: 'TRPL-M04',
@@ -75,8 +66,22 @@ class ModuleLauncherScreen extends StatefulWidget {
 }
 
 class _ModuleLauncherScreenState extends State<ModuleLauncherScreen> {
-  // Menyimpan daftar modul yang telah di-unlock via token kelas selama sesi berjalan
   final Set<int> _unlockedModules = {};
+
+  // Disimpan dalam variabel agar FutureBuilder tidak memanggil ulang saat dialog/rebuild
+  late Future<List<String>> _futureJudul;
+
+  // --- Fungsi Future yang diminta ---
+  Future<List<String>> muatJudul() async {
+    await Future<void>.delayed(const Duration(seconds: 1));
+    return ['Jadwal Responsi', 'Pendaftaran Magang'];
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _futureJudul = muatJudul();
+  }
 
   bool _isModuleUnlocked(int moduleNumber) {
     return moduleNumber <= ModuleLauncherScreen.activeModuleUntil ||
@@ -134,7 +139,6 @@ class _ModuleLauncherScreenState extends State<ModuleLauncherScreen> {
             onPressed: () {
               final input = controller.text.trim().toUpperCase();
 
-              // 1. Cek Master Passcode (Membuka Seluruh 16 Modul untuk Dosen)
               if (input == ModuleLauncherScreen.masterPasscode) {
                 setState(() {
                   _unlockedModules.addAll(List.generate(16, (i) => i + 1));
@@ -150,7 +154,6 @@ class _ModuleLauncherScreenState extends State<ModuleLauncherScreen> {
                 return;
               }
 
-              // 2. Cek Token Spesifik Modul
               if (isSingleModule) {
                 final validPasscode = ModuleLauncherScreen.modulePasscodes[targetModule];
                 if (input == validPasscode) {
@@ -168,7 +171,6 @@ class _ModuleLauncherScreenState extends State<ModuleLauncherScreen> {
                   return;
                 }
               } else {
-                // Cek jika mencocokkan salah satu token modul
                 for (final entry in ModuleLauncherScreen.modulePasscodes.entries) {
                   if (input == entry.value) {
                     setState(() {
@@ -187,7 +189,6 @@ class _ModuleLauncherScreenState extends State<ModuleLauncherScreen> {
                 }
               }
 
-              // Jika salah
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Token akses salah. Silakan tanyakan kepada dosen di kelas.'),
@@ -229,7 +230,7 @@ class _ModuleLauncherScreenState extends State<ModuleLauncherScreen> {
           // Banner info status perkuliahan
           Container(
             padding: const EdgeInsets.all(14),
-            margin: const EdgeInsets.only(bottom: 16),
+            margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
               color: const Color(0xFFE0F2FE),
               borderRadius: BorderRadius.circular(12),
@@ -242,13 +243,80 @@ class _ModuleLauncherScreenState extends State<ModuleLauncherScreen> {
                 Expanded(
                   child: Text(
                     _unlockedModules.length >= 10
-                        ? '👨‍🏫 Mode Dosen Aktif: Seluruh 16 modul terbuka untuk ditinjau.'
+                        ? '👨‍‍🏫 Mode Dosen Aktif: Seluruh 16 modul terbuka untuk ditinjau.'
                         : 'Perkuliahan Aktif: Minggu ke-${ModuleLauncherScreen.activeModuleUntil} (Modul 01 & 02). Modul lanjutan dibuka sesuai jadwal.',
                     style: const TextStyle(color: Color(0xFF0369A1), fontSize: 12, fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
             ),
+          ),
+
+          // Tampilan data Future muatJudul()
+          FutureBuilder<List<String>>(
+            future: _futureJudul,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Card(
+                  margin: EdgeInsets.only(bottom: 16),
+                  child: Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          'Memuat pengumuman terbaru...',
+                          style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              if (snapshot.hasError) {
+                return const SizedBox.shrink();
+              }
+
+              final judulList = snapshot.data ?? [];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.amber.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.campaign_outlined, color: Colors.amber, size: 20),
+                        SizedBox(width: 6),
+                        Text(
+                          'Pengumuman Terkini:',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF78350F)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    ...judulList.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+                        child: Text('• $item', style: const TextStyle(fontSize: 12, color: Color(0xFF92400E))),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
 
           // Section 1: Fondasi Flutter (Modul 01–07)
@@ -399,28 +467,37 @@ class _ModuleLauncherScreenState extends State<ModuleLauncherScreen> {
     required String subtitle,
     required Widget Function() builder,
   }) {
-    final unlocked = _isModuleUnlocked(moduleNumber);
+final unlocked = moduleNumber == 6 || moduleNumber == 11 || _isModuleUnlocked(moduleNumber);
 
-    if (unlocked) {
-      return _ModuleCard(
-        moduleNumber: moduleNumber,
-        title: title,
-        subtitle: subtitle,
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => builder()),
-          );
-        },
+if (unlocked) {
+  return _ModuleCard(
+    moduleNumber: moduleNumber,
+    title: title,
+    subtitle: subtitle,
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) {
+            if (moduleNumber == 6) {
+              return const Modul06PengayaanApp();
+            } else if (moduleNumber == 11) {
+              return const Modul11App(); // Pastikan sesuai nama class di modul_11_app.dart
+            }
+            return builder();
+          },
+        ),
       );
-    } else {
-      return _LockedModuleCard(
-        moduleNumber: moduleNumber,
-        title: title,
-        subtitle: subtitle,
-        onTap: () => _showUnlockDialog(context, targetModule: moduleNumber, title: title),
-      );
-    }
+    },
+  );
+} else {
+  return _LockedModuleCard(
+    moduleNumber: moduleNumber,
+    title: title,
+    subtitle: subtitle,
+    onTap: () => _showUnlockDialog(context, targetModule: moduleNumber, title: title),
+  );
+}
   }
 }
 

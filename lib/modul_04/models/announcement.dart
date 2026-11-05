@@ -19,17 +19,21 @@ class Announcement {
   });
 
   // Factory constructor untuk deserialisasi data JSON dari REST API
-  factory Announcement.fromJson(Map<String, dynamic> json) {
-    return Announcement(
-      id: json['id'] is int ? json['id'] as int : int.tryParse(json['id'].toString()) ?? 0,
-      title: json['title'] as String? ?? 'Tanpa Judul',
-      content: json['content'] as String? ?? json['body'] as String? ?? '',
-      author: json['author'] as String? ?? 'Admin Jurusan',
-      category: json['category'] as String? ?? 'Akademik',
-      date: json['date'] as String? ?? '2026-09-01',
-      readCount: json['readCount'] is int ? json['readCount'] as int : 0,
-    );
-  }
+factory Announcement.fromJson(Map<String, dynamic> json) {
+  return Announcement(
+    id: json['id'] is int
+        ? json['id'] as int
+        : int.tryParse(json['id']?.toString() ?? '') ?? 0,
+    title: json['title'] as String? ?? 'Tanpa Judul',
+    content: json['content'] as String? ?? json['body'] as String? ?? '',
+    author: json['author'] as String? ?? 'Admin Jurusan',
+    category: json['category'] as String? ?? 'Akademik',
+    date: json['date'] as String? ?? '2026-09-01',
+    readCount: json['readCount'] is int
+        ? json['readCount'] as int
+        : int.tryParse(json['readCount']?.toString() ?? '') ?? 0,
+  );
+}
 
   // Konversi objek model ke format Map/JSON untuk request HTTP (POST/PUT)
   Map<String, dynamic> toJson() {

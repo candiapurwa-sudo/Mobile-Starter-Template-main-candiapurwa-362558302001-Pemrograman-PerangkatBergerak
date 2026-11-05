@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
+
 import '../models/announcement.dart';
 
-// Remote Data Source: Menangani panggilan langsung ke REST API via HTTP Dio
+/// Remote Data Source: Menangani panggilan langsung ke REST API via HTTP Dio.
 class AnnouncementRemoteDataSource {
   final Dio _dio;
 
@@ -31,7 +32,25 @@ class AnnouncementRemoteDataSource {
     );
   }
 
-  // Mengambil daftar pengumuman dari REST API
+  // ── Raw Methods (Metode Data Mentah Sesuai Modul) ──
+
+  /// Mengambil data mentah (List dynamic) dari REST API
+  Future<List<dynamic>> fetchRawAnnouncements() async {
+    final response = await _dio.get('/posts?_limit=10');
+    return response.data as List<dynamic>;
+  }
+
+  /// Mengirim payload Map mentah ke REST API
+  Future<Map<String, dynamic>> postRawAnnouncement(
+    Map<String, dynamic> data,
+  ) async {
+    final response = await _dio.post('/posts', data: data);
+    return response.data as Map<String, dynamic>;
+  }
+
+  // ── Mapped Methods (Metode dengan Pemetaan Model Announcement) ──
+
+  /// Mengambil daftar pengumuman dan mengonversinya langsung ke model Announcement
   Future<List<Announcement>> fetchAnnouncements() async {
     try {
       final response = await _dio.get('/posts');
@@ -40,7 +59,7 @@ class AnnouncementRemoteDataSource {
         final List<dynamic> data = response.data as List<dynamic>;
 
         // Mengonversi response API menjadi list model Announcement
-        // Kita ambil 10 data teratas dan sesuaikan dengan kategori kampus
+        // Ambil 10 data teratas dan sesuaikan dengan kategori kampus
         final categories = ['Akademik', 'Beasiswa', 'Kegiatan', 'Prestasi'];
         return data.take(10).toList().asMap().entries.map((entry) {
           final index = entry.key;
@@ -69,7 +88,7 @@ class AnnouncementRemoteDataSource {
     }
   }
 
-  // Mengirim pengumuman baru (HTTP POST)
+  /// Mengirim pengumuman baru (HTTP POST) dan mengembalikan model Announcement
   Future<Announcement> createAnnouncement(Announcement announcement) async {
     try {
       final response = await _dio.post(
