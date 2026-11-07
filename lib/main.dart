@@ -29,10 +29,7 @@ class PoliwangiStarterApp extends StatelessWidget {
           seedColor: const Color(0xFF0284C7),
           brightness: Brightness.light,
         ),
-        cardTheme: CardThemeData(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
+        
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
