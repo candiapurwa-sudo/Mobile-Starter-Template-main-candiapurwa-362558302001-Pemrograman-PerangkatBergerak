@@ -7,7 +7,7 @@ class HeaderBanner extends StatelessWidget {
   const HeaderBanner({super.key, this.courses});
 
   // Sample data notifikasi
-  final List<Map<String, String>> _notifications = const [
+  final _notifications = const [
     {
       'title': 'Jadwal Kuliah Diperbarui',
       'body': 'Ruangan Pemrograman Mobile pindah ke Lab 3.',
@@ -38,25 +38,30 @@ class HeaderBanner extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Baris Atas: Badge Semester & Fitur Lonceng Notifikasi
+          // Baris Atas: Badge Semester & Fitur Lonceng Notifikasi (Aman Overflow)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'Semester 3 (2026/2027)',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    'Semester 3 (2026/2027)',
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
+              const SizedBox(width: 8),
 
               // Fitur Lonceng Notifikasi dengan Popup Menu
               PopupMenuButton<int>(

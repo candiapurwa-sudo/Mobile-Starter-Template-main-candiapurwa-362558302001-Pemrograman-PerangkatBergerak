@@ -38,32 +38,35 @@ class _AcademicDashboardScreenState extends State<AcademicDashboardScreen> {
 
   Widget _buildFilterChips() {
     final categories = ['Semua', 'Teori', 'Praktikum'];
-    return Row(
-      children: categories.map((category) {
-        final isSelected = _selectedCategory == category;
-        return Container(
-          margin: const EdgeInsets.only(right: 8.0),
-          child: FilterChip(
-            showCheckmark: isSelected,
-            label: Text(category),
-            selected: isSelected,
-            selectedColor: const Color(0xFFCFE2FE),
-            backgroundColor: Colors.transparent,
-            side: BorderSide(
-              color: isSelected ? const Color(0xFF0284C7) : Colors.grey.shade400,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: categories.map((category) {
+          final isSelected = _selectedCategory == category;
+          return Container(
+            margin: const EdgeInsets.only(right: 8.0),
+            child: FilterChip(
+              showCheckmark: isSelected,
+              label: Text(category),
+              selected: isSelected,
+              selectedColor: const Color(0xFFCFE2FE),
+              backgroundColor: Colors.transparent,
+              side: BorderSide(
+                color: isSelected ? const Color(0xFF0284C7) : Colors.grey.shade400,
+              ),
+              labelStyle: TextStyle(
+                color: isSelected ? const Color(0xFF0369A1) : Colors.black87,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+              onSelected: (selected) {
+                if (selected) {
+                  _onCategorySelected(category);
+                }
+              },
             ),
-            labelStyle: TextStyle(
-              color: isSelected ? const Color(0xFF0369A1) : Colors.black87,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            ),
-            onSelected: (selected) {
-              if (selected) {
-                _onCategorySelected(category);
-              }
-            },
-          ),
-        );
-      }).toList(),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -97,6 +100,8 @@ class _AcademicDashboardScreenState extends State<AcademicDashboardScreen> {
         ),
         body: LayoutBuilder(
           builder: (context, constraints) {
+            final isTablet = constraints.maxWidth >= 600;
+
             return ListView(
               padding: const EdgeInsets.all(16),
               children: [
@@ -107,13 +112,16 @@ class _AcademicDashboardScreenState extends State<AcademicDashboardScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Mata Kuliah (${_courses.length} Terdaftar)',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        'Mata Kuliah (${_courses.length} Terdaftar)',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       'Total SKS: $totalSks',
                       style: const TextStyle(
@@ -130,8 +138,26 @@ class _AcademicDashboardScreenState extends State<AcademicDashboardScreen> {
                 _buildFilterChips(),
                 const SizedBox(height: 16),
 
-                // List Mata Kuliah
-                ..._filteredCourses.map((course) => CourseCard(course: course)),
+                // Layout Adaptif:
+                // Tablet (>= 600dp): GridView 2 Kolom dengan childAspectRatio 1.4 (bebas overflow)
+                // Mobile (< 600dp): Daftar Card Langsung
+                if (isTablet)
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.4,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    itemCount: _filteredCourses.length,
+                    itemBuilder: (context, index) {
+                      return CourseCard(course: _filteredCourses[index]);
+                    },
+                  )
+                else
+                  ..._filteredCourses.map((course) => CourseCard(course: course)),
               ],
             );
           },

@@ -39,7 +39,7 @@ class AnnouncementCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      announcement.category,
+                      '#${announcement.category}',
                       style: TextStyle(
                         color: warna.onPrimaryContainer,
                         fontSize: 11,

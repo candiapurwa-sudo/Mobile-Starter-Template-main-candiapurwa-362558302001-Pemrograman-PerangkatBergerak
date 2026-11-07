@@ -29,7 +29,6 @@ class AnnouncementApi {
   ];
 
   Future<List<Announcement>> ambilPengumuman() async {
-    await Future.delayed(const Duration(seconds: 5));
     // ── Mode simulasi: tidak menyentuh jaringan sama sekali ──────────────
     if (modeSimulasi) {
       await Future<void>.delayed(const Duration(seconds: 1));
