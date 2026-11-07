@@ -82,7 +82,7 @@ class ProfileScreen extends StatelessWidget {
                       _ProfileInfoRow(
                         icon: Icons.domain_rounded,
                         label: 'Jurusan / Kampus',
-                        value: 'Bisnis & Informatika — Poliwangi',
+                        value: 'Bisnis & Informatika - Poliwangi',
                       ),
                       Divider(height: 24),
                       _ProfileInfoRow(
@@ -94,7 +94,7 @@ class ProfileScreen extends StatelessWidget {
                       _ProfileInfoRow(
                         icon: Icons.calendar_month_rounded,
                         label: 'Semester & Angkatan',
-                        value: 'Semester 3 — Angkatan 2025',
+                        value: 'Semester 3 - Angkatan 2025',
                       ),
                     ],
                   ),
@@ -102,10 +102,10 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Tombol verifikasi dengan feedback SnackBar
+              // Tombol verifikasi dengan feedback SnackBar (ElevatedButton standar)
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
+                child: ElevatedButton(
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -116,8 +116,6 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.verified_user_rounded),
-                  label: const Text('Verifikasi Status Mahasiswa'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF0284C7),
                     foregroundColor: Colors.white,
@@ -125,6 +123,14 @@ class ProfileScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.verified_user_rounded),
+                      SizedBox(width: 8),
+                      Text('Verifikasi Status Mahasiswa'),
+                    ],
                   ),
                 ),
               ),
@@ -161,7 +167,6 @@ class _ProfileInfoRow extends StatelessWidget {
           child: Icon(icon, size: 20, color: const Color(0xFF0284C7)),
         ),
         const SizedBox(width: 14),
-        // Expanded agar teks panjang otomatis wrap ke bawah dan tidak overflow
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
