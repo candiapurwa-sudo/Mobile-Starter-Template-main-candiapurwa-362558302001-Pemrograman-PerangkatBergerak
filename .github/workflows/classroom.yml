@@ -110,5 +110,12 @@ jobs:
       - name: Autograding Score Reporter
         uses: education/autograding-grading-reporter@v1
         if: always()
+        env:
+          TEST-ANALYSIS_RESULTS: "${{ steps.test-analysis.outputs.result }}"
+          TEST-MODUL-01_RESULTS: "${{ steps.test-modul-01.outputs.result }}"
+          TEST-MODUL-02_RESULTS: "${{ steps.test-modul-02.outputs.result }}"
+          TEST-MODUL-03_RESULTS: "${{ steps.test-modul-03.outputs.result }}"
+          TEST-MODUL-04_RESULTS: "${{ steps.test-modul-04.outputs.result }}"
+          TEST-DOC_RESULTS: "${{ steps.test-doc.outputs.result }}"
         with:
           runners: test-analysis,test-modul-01,test-modul-02,test-modul-03,test-modul-04,test-doc
